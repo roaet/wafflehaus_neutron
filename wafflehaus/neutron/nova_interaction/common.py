@@ -33,7 +33,7 @@ class BaseConnection(object):
 
     def _make_the_call(self, method, url, body=None):
         """Note that a request response is being used here, not webob."""
-        self.log.debug("%s call to %s with body = %s" % (method, url, body))
+        self.log.info("%s call to %s with body = %s" % (method, url, body))
         params = {"url": url, "headers": self.headers, "verify": self.verify}
         if body is not None:
             params["data"] = body
@@ -50,19 +50,32 @@ class BaseConnection(object):
         return resp.status_code, resp.json()
 
     def delete(self, url, body):
+        self.log.debug('DELETE call to nova with '
+                       'url : %s and body : %s ' % (str(url),
+                                                    str(body.__dict__)))
         status, resp = self._make_the_call("DELETE", url, body)
         return status, resp
 
     def get(self, url, body=None):
+        self.log.debug('GET call to nova with '
+                       'url : %s and body : %s ' % (str(url),
+                                                    str(body.__dict__)))
         status, resp = self._make_the_call("GET", url, body)
         return status, resp
 
     def post(self, url, body):
+        self.log.debug('POST call to nova with '
+                       'url : %s and body : %s ' % (str(url),
+                                                    str(body.__dict__)))
         status, resp = self._make_the_call("POST", url, body)
         return status, resp
 
     def put(self, url, body):
         status, resp = self._make_the_call("PUT", url, body)
+        self.log.debug('PUT call to nova with '
+                       'url : %s and body : %s ' % (str(url),
+                                                    str(body.__dict__)))
+
         return status, resp
 
 
@@ -114,6 +127,9 @@ class NovaConnection(BaseConnection):
             self.url, tenant_id, instance_id, port_id)
 
         status, nova_resp = self.put(url, body)
+        self.log.debug('Nova status : %s and response : %s for '
+                       'admin virtual interfaces ', str(status),
+                       str(nova_resp))
         return status, nova_resp
 
     def os_virtual_interfaces(self, network_id=None):
@@ -122,6 +138,8 @@ class NovaConnection(BaseConnection):
                 {"network_id": network_id}}
 
         status, nova_resp = self.put(self.url, body)
+        self.log.debug('Nova status : %s and response : %s for os virtual '
+                       'interfaces ' % (str(status), str(nova_resp)))
         return status, nova_resp
 
 
